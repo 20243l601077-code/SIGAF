@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login'; // <--- 1. Importamos Login
 import { Principal } from './pages/principal/principal';
 import { VentasComponent } from './pages/ventas/ventas';
-import { Cotizacion } from './pages/cotizacion/cotizacion';
+import { CotizacionComponent } from './pages/cotizacion/cotizacion';
 import { Inventario } from './pages/inventario/inventario';
 import { Reportes } from './pages/reportes/reportes';
 import { Empleados } from './pages/empleados/empleados';
@@ -23,7 +23,7 @@ export const routes: Routes = [
     path: 'ventas', component: VentasComponent  
   },
   { 
-    path: 'cotizacion', component: Cotizacion 
+    path: 'cotizacion', component: CotizacionComponent
   },
   { 
     path: 'inventario', component: Inventario 
