@@ -444,3 +444,22 @@ FOR EACH ROW EXECUTE FUNCTION fn_auditar_cambios('id_empleado');
 CREATE OR REPLACE TRIGGER trg_auditoria_egreso
 AFTER INSERT OR UPDATE OR DELETE ON egreso
 FOR EACH ROW EXECUTE FUNCTION fn_auditar_cambios('id_egreso');
+
+-- =========================================================
+-- 10. DATOS SEMILLA SEED
+-- =========================================================
+
+CREATE TABLE usuario (
+    id_usuario       SERIAL PRIMARY KEY,
+    nombre           VARCHAR(100) NOT NULL,
+    apellidoPa       VARCHAR(80),
+    apellidoMa       VARCHAR(80),
+    correo           VARCHAR(100) UNIQUE NOT NULL,
+    password         VARCHAR(255) NOT NULL,
+    rol              VARCHAR(50)  NOT NULL,
+    activo           BOOLEAN DEFAULT TRUE,
+    tiempo           TIMESTAMPTZ DEFAULT now()
+);
+
+INSERT INTO usuario (nombre, correo, password, rol)
+VALUES ('Diego', 'Diego@sigaf.com', '1234', 'admin');
