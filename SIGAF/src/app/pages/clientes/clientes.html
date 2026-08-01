@@ -1,0 +1,94 @@
+<div class="inventory-module">
+  
+  <div class="inventory-header">
+    <h1 class="inventory-title">Catálogo de Clientes</h1>
+    <button id="open-modal-btn" class="btn btn-primary" (click)="abrirModal()">
+      <span class="btn-icon">+</span> Nuevo Cliente
+    </button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters-container">
+    <div class="filter-group">
+      <label for="filter-cliente">Buscar Cliente:</label>
+      <input type="text" id="filter-cliente" placeholder="Razón social o RFC...">
+    </div>
+    <button class="btn btn-search">Buscar</button>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-responsive">
+    <table class="inventory-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Razón Social</th>
+          <th>RFC</th>
+          <th>Teléfono</th>
+          <th>Correo Electrónico</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>#CLI-001</strong></td>
+          <td>Constructora del Golfo S.A. de C.V.</td>
+          <td>CGO120415AA1</td>
+          <td>2717154321</td>
+          <td>contacto@cgolfo.com</td>
+          <td>Av. 3 No. 405, Córdoba, Ver.</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action edit" title="Editar">✏️</button>
+              <button class="btn-action delete" title="Eliminar">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODAL -->
+  <div id="customer-modal" class="modal-overlay" [class.is-visible]="isModalOpen" (click)="cerrarModalDesdeAfuera($event)">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Registrar Nuevo Cliente</h2>
+        <button type="button" id="close-modal-x" class="modal-close-x" (click)="cerrarModal()">&times;</button>
+      </div>
+      
+      <form id="modal-form" class="modal-body" #clienteForm="ngForm" (ngSubmit)="guardarCliente($event)">
+        <div class="filter-group block-input">
+          <label for="modal-razon">Razón Social / Nombre Completo *</label>
+          <input type="text" id="modal-razon" name="razonSocial" [(ngModel)]="nuevoCliente.razonSocial" placeholder="Ej. Constructora del Golfo" required>
+        </div>
+
+        <div class="form-row-grid inline-quantity-unit has-material-unit">
+          <div class="filter-group block-input">
+            <label for="modal-rfc">RFC *</label>
+            <input type="text" id="modal-rfc" name="rfc" [(ngModel)]="nuevoCliente.rfc" placeholder="12 o 13 dígitos" minlength="12" maxlength="13" style="text-transform: uppercase;" required>
+          </div>
+          <div class="filter-group block-input">
+            <label for="modal-tel">Teléfono *</label>
+            <input type="text" id="modal-tel" name="telefono" [(ngModel)]="nuevoCliente.telefono" (keydown)="validarTecladoTelefono($event)" placeholder="10 dígitos" maxlength="10" required>
+          </div>
+        </div>
+
+        <div class="filter-group block-input">
+          <label for="modal-correo">Correo Electrónico *</label>
+          <input type="email" id="modal-correo" name="correo" [(ngModel)]="nuevoCliente.correo" placeholder="ejemplo@correo.com" email required>
+        </div>
+
+        <div class="filter-group block-input">
+          <label for="modal-dir">Dirección Fiscal / Particular *</label>
+          <input type="text" id="modal-dir" name="direccion" [(ngModel)]="nuevoCliente.direccion" placeholder="Calle, Número, Colonia y Municipio" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="clienteForm.invalid">Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

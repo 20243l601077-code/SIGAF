@@ -1,0 +1,102 @@
+<div class="quotes-module">
+  
+  <div class="quotes-header">
+    <h1 class="quotes-title">Cotizaciones</h1>
+    <button class="btn btn-primary">
+      <span class="btn-icon">+</span> Generar Cotización
+    </button>
+  </div>
+
+  <div class="filters-container">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="filter-period">Período:</label>
+        <select id="filter-period">
+          <option value="" disabled selected>Seleccionar</option>
+          <option value="hoy">Hoy</option>
+          <option value="mes">Este Mes</option>
+          <option value="personalizado">Personalizado</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-start">Inicio:</label>
+        <input type="date" id="filter-start">
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-end">Fin:</label>
+        <input type="date" id="filter-end">
+      </div>
+    </div>
+
+    <div class="filter-row search-row">
+      <div class="filter-group keyword-group">
+        <label for="filter-keywords">Palabras clave:</label>
+        <input type="text" id="filter-keywords" placeholder="No. Factura, Cliente, Impo...">
+      </div>
+
+      <button class="btn btn-search">Buscar</button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="quotes-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Número</th>
+          <th>Tipo</th>
+          <th>Cliente</th>
+          <th>Vendedor</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>21/06/2026</td>
+          <td><strong>#COT-0042</strong></td>
+          <td>Premium</td>
+          <td>Constructora del Sureste S.A.</td>
+          <td>Ing. Carlos Mendoza</td>
+          <td>$12,450.00</td>
+          <td><span class="badge badge-warning">Pendiente</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action view" title="Ver Detalle">👁️</button>
+              <button class="btn-action download" title="Descargar PDF">📄</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="row-alt">
+          <td>19/06/2026</td>
+          <td><strong>#COT-0041</strong></td>
+          <td>Estándar</td>
+          <td>Logística Ferroviaria Dimas</td>
+          <td>Lic. Ana Martínez</td>
+          <td>$85,900.00</td>
+          <td><span class="badge badge-success">Aprobada</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action view" title="Ver Detalle">👁️</button>
+              <button class="btn-action download" title="Descargar PDF">📄</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

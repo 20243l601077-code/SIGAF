@@ -1,0 +1,52 @@
+<div class="layout-container">
+
+  <header class="header-container" [class.collapsed]="isCollapsed()">
+    
+    <button class="toggle-btn" (click)="isCollapsed.update(v => !v)" [title]="isCollapsed() ? 'Expandir' : 'Colapsar'">
+      <span class="icon">{{ isCollapsed() ? '➔' : '✕' }}</span> 
+    </button>
+
+    <div class="brand-container">
+    <img src="assets/logo_inver.png" class="logo-full" alt="Logo Completo">
+    <img src="assets/mini_inver.png" class="logo-icon" alt="Minilogo">
+  </div>
+    <nav class="nav-container">
+      <a routerLink="/principal" routerLinkActive="active" class="nav-link-custom" title="Resumen">
+        <span class="icon"><img src="assets/dash.png" width="60" height="60" style="width: 60px; height: 60px;"></span>
+        <span class="nav-text">Resumen</span>
+      </a>
+      <a routerLink="/ventas" routerLinkActive="active" class="nav-link-custom" title="Finanzas">
+        <span class="icon"><img src="assets/venta.png" width="24" height="24" style="width: 24px; height: 24px;"></span>
+        <span class="nav-text">Finanzas</span>
+      </a>
+      <a routerLink="/cotizacion" routerLinkActive="active" class="nav-link-custom" title="Cotizaciones">
+        <span class="icon">📋</span>
+        <span class="nav-text">Cotizaciones</span>
+      </a>
+      <a routerLink="/inventario" routerLinkActive="active" class="nav-link-custom" title="Inventario">
+        <span class="icon"><img src="assets/1.png" width="24" height="24" style="width: 24px; height: 24px;"></span>
+        <span class="nav-text">Inventario</span>
+      </a>
+      <a routerLink="/reportes" routerLinkActive="active" class="nav-link-custom" title="Reportes">
+        <span class="icon">⚙️</span>
+        <span class="nav-text">Reportes</span>
+      </a>
+      <a routerLink="/empleados" routerLinkActive="active" class="nav-link-custom" title="Empleados">
+        <span class="icon">⚙️</span>
+        <span class="nav-text">Empleados</span>
+      </a>
+      <a routerLink="/clientes" routerLinkActive="active" class="nav-link-custom" title="Clientes">
+        <span class="icon">⚙️</span>
+        <span class="nav-text">Clientes</span>
+      </a>
+      <a routerLink="/configuraciones" routerLinkActive="active" class="nav-link-custom" title="Configuraciones">
+        <span class="icon">⚙️</span>
+        <span class="nav-text">Configuraciones</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

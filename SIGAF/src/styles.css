@@ -1,0 +1,20 @@
+/* ==========================================================================
+   DESIGN SYSTEM (SOLID GREEN MINIMAL - INTEGRADO)
+   ========================================================================== */
+:root {
+    --primary: #2d4f4c;         /* Verde oscuro del navegador para textos/títulos */
+    --secondary: #3d6b67;       /* El verde exacto de la sección del navegador */
+    --secondary-hover: #2e5451; /* Tono del botón seleccionado en la barra lateral */
+    --bg-main: #f0f4f4;         
+    --bg-white: #ffffff;        
+    --text-dark: #2d3748;       
+    --border-color: #e2e8f0;    
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--primary);
+    min-height: 100vh;
+}

@@ -1,0 +1,122 @@
+<div class="reports-module">
+  
+  <!-- Encabezado del Módulo -->
+  <header class="reports-header">
+    <h1 class="reports-title">Módulo de Reportes y Analítica</h1>
+    <div class="action-buttons">
+      <button 
+        class="btn btn-secondary" 
+        [disabled]="exportandoData || cargandoReporte"
+        (click)="descargarBalance('excel')">
+        <span>Exportar Excel</span>
+      </button>
+      <button 
+        class="btn btn-primary" 
+        [disabled]="exportandoData || cargandoReporte"
+        (click)="descargarBalance('pdf')">
+        <span>Descargar PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Cuadro de Métricas Rápidas (KPIs) -->
+  <section class="metrics-summary-grid">
+    <div *ngFor="let metric of metrics" class="metric-card" [ngClass]="metric.type">
+      <span class="metric-label">{{ metric.label }}</span>
+      <span class="metric-value">{{ metric.value }}</span>
+    </div>
+  </section>
+
+  <!-- Filtros Analíticos Dinámicos -->
+  <section class="report-config-box">
+    <div class="filter-row">
+      
+      <div class="filter-group">
+        <label for="tipoReporte">Tipo de Reporte</label>
+        <select id="tipoReporte" [(ngModel)]="tipoReporte">
+          <option value="general">Balance General</option>
+          <option value="clientes">Rendimiento por Cliente</option>
+          <option value="servicios">Métricas de Servicios</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="fechaInicio">Desde</label>
+        <input type="date" id="fechaInicio" [(ngModel)]="fechaInicio">
+      </div>
+
+      <div class="filter-group">
+        <label for="fechaFin">Hasta</label>
+        <input type="date" id="fechaFin" [(ngModel)]="fechaFin">
+      </div>
+
+      <!-- Evento click corregido a consultarMetricas() sin acento para evitar el error NG5002 -->
+      <button 
+        class="btn btn-search" 
+        [disabled]="cargandoReporte"
+        (click)="consultarMetricas()">
+        {{ cargandoReporte ? 'Procesando...' : 'Filtrar Analítica' }}
+      </button>
+
+    </div>
+  </section>
+
+  <!-- Tabla Estructurada de Resultados Analíticos -->
+  <section class="table-responsive">
+    <table class="reports-table">
+      <thead>
+        <tr>
+          <th>Folio Origen</th>
+          <th>Fecha Registro</th>
+          <th>Categoría / Tipo</th>
+          <th>Cliente Asociado</th>
+          <th>Estado Interno</th>
+          <th class="amount-cell">Subtotal Neto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of reportRows">
+          <td><strong>{{ row.folio }}</strong></td>
+          <td>{{ row.fecha }}</td>
+          <td>{{ row.tipo }}</td>
+          <td>{{ row.cliente }}</td>
+          <td>
+            <span class="badge badge-success">{{ row.estado }}</span>
+          </td>
+          <td class="amount-cell">{{ row.monto | currency:'USD':'symbol':'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Configuración / Historial Inalterable (Datos Opacos) -->
+  <section class="report-config-box">
+    <h3 style="font-size: 0.875rem; font-weight: 600; color: #0f172a; margin: 0 0 0.5rem 0;">
+      Metadatos y Auditoría del Sistema
+    </h3>
+    <div class="form-row-grid">
+      
+      <!-- Campo bloqueado: ID de consulta fijo de auditoría -->
+      <div class="filter-group block-input">
+        <label for="idHistorial">Identificador de Consulta (Fijo)</label>
+        <input 
+          type="text" 
+          id="idHistorial" 
+          [value]="idHistorialFijo" 
+          disabled>
+      </div>
+
+      <!-- Campo bloqueado: Ejercicio Fiscal activo auditado -->
+      <div class="filter-group block-input">
+        <label for="ejercicio">Ejercicio Fiscal Corriente</label>
+        <input 
+          type="text" 
+          id="ejercicio" 
+          [value]="ejercicioFiscal" 
+          disabled>
+      </div>
+
+    </div>
+  </section>
+
+</div>

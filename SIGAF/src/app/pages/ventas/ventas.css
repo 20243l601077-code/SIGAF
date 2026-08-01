@@ -1,0 +1,963 @@
+/* ==========================================================================
+   0. CONFIGURACIÓN CORPORATIVA Y TOKENS (ESTÁNDAR HIGH-END SAAS)
+   ========================================================================== */
+:root {
+    --primary: #0f172a;       /* Slate 900 - Máximo rigor institucional */
+    --secondary: #1e293b;     /* Slate 800 - Interacciones y énfasis */
+    --bg-main: #f8fafc;       /* Slate 50 - Fondo limpio ultra-claro */
+    --bg-white: #ffffff;      /* Blanco puro para contenedores */
+    --border-color: #e2e8f0;  /* Slate 200 - Líneas divisorias matemáticas */
+    --text-muted: #64748b;    /* Slate 500 - Subtextos y etiquetas */
+    --accent-sat: #475569;    /* Tono neutro para acciones de gobernanza/SAT */
+    --danger-red: #ef4444;    /* Rojo corporativo para advertencias destructivas */
+    --danger-hover: #dc2626;  /* Énfasis en eliminación */
+}
+
+/* ==========================================================================
+   1. VARIABLES Y CONFIGURACIÓN ESTRUCTURAL (MÓDULO FINANZAS / VENTAS)
+   ========================================================================== */
+.invoices-module {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.invoices-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: var(--bg-white);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.invoices-title {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* ==========================================================================
+   2. SISTEMA DE BOTONES UNIFICADOS E INGENIERÍA DE INTERFACES
+   ========================================================================== */
+.btn, 
+.btn-search,
+.btn-sat-submit,
+.btn-sat-action {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    box-sizing: border-box;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary,
+.btn-search,
+.btn-sat-submit,
+.btn-sat-action {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover,
+.btn-search:hover,
+.btn-sat-submit:hover,
+.btn-sat-action:hover {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.btn-primary:focus-visible,
+.btn-search:focus-visible,
+.btn-sat-submit:focus-visible,
+.btn-sat-action:focus-visible {
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--primary);
+}
+
+.btn-secondary {
+    background-color: var(--bg-white);
+    color: #334155;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-main);
+    color: var(--primary);
+    border-color: #94a3b8;
+}
+
+.btn-danger-action {
+    background-color: var(--danger-red);
+    color: #ffffff;
+    border: 1px solid var(--danger-red);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-danger-action:hover {
+    background-color: var(--danger-hover);
+}
+
+.add-list-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.btn-add-list {
+    background-color: var(--primary);
+    color: #ffffff;
+    border: 1px solid var(--primary);
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.84rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease;
+}
+
+.btn-add-list:hover {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.btn-remove-item {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    border-radius: 4px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
+}
+
+.btn-remove-item:hover {
+    background: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+/* ==========================================================================
+   3. FILTROS HORIZONTALES Y BARRA DE BÚSQUEDA INTUITIVA
+   ========================================================================== */
+.filters-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.1rem 0;
+}
+
+.search-bar-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-main {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0 1rem 0 2.75rem;
+    font-size: 0.925rem;
+    color: var(--primary);
+    background-color: var(--bg-white);
+    box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease;
+}
+
+.search-input-main:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+.search-icon-inside {
+    position: absolute;
+    left: 1rem;
+    font-size: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    width: 100%;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.813rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.filter-group input,
+.filter-group select {
+    height: 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    background-color: var(--bg-white);
+    box-sizing: border-box;
+    min-width: 175px;
+    outline: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* ==========================================================================
+   4. ESTRUCTURA DE TABLA PRINCIPAL (DATA-DENSE ERGONÓMICO CON ACCIONES)
+   ========================================================================== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    background-color: var(--bg-white);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.invoices-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.invoices-table th {
+    background-color: var(--bg-main) !important;
+    color: #475569 !important;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.invoices-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.875rem;
+}
+
+.invoices-table tbody tr:hover {
+    background-color: var(--bg-main);
+}
+
+.action-buttons-icons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-btn-action {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.15s ease;
+    padding: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.icon-btn-action:hover {
+    background-color: var(--bg-main);
+    border-color: #cbd5e1;
+}
+
+.icon-btn-action.delete:hover {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+}
+
+.badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid rgba(22, 101, 52, 0.15);
+}
+
+/* ==========================================================================
+   5. ARQUITECTURA DE LAS VENTANAS EMERGENTES (MODALES INTEGRALES)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(4px);
+    display: none; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 1000; 
+    opacity: 0; 
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.is-visible {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.modal-container {
+    background: var(--bg-white);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 740px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transform: scale(0.98);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border-color);
+}
+
+.modal-overlay.is-visible .modal-container {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.modal-close-x {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close-x:hover {
+    color: var(--primary);
+    background-color: #f1f5f9;
+}
+
+.modal-body-scollable {
+    padding: 1.5rem;
+    display: flex; 
+    flex-direction: column; 
+    gap: 1.25rem;
+    max-height: 70vh; 
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    width: 100%;
+}
+
+.split-material-stock {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.25rem;
+}
+
+.filter-group.block-input {
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+    width: 100%; 
+    gap: 0.375rem;
+}
+
+.filter-group.block-input label {
+    font-size: 0.813rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.filter-group.block-input input,
+.filter-group.block-input select {
+    width: 100%;
+    height: 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    background-color: var(--bg-white);
+    box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color 0.15s ease;
+}
+
+.filter-group.block-input input:focus,
+.filter-group.block-input select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+}
+
+.filter-group.block-input input:disabled {
+    background-color: var(--bg-main) !important;
+    border-color: var(--border-color);
+    color: #83888f !important;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.full-width-input {
+    grid-column: span 2;
+}
+
+/* ==========================================================================
+   6. SECCIÓN DE CONFIRMACIÓN CUSTOMIZADA (REEMPLAZO DE ALERTA NATIVA)
+   ========================================================================== */
+.custom-alert-overlay {
+    background-color: rgba(15, 23, 42, 0.4) !important;
+    z-index: 1100 !important;
+}
+
+.modal-overlay.custom-alert-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    display: flex !important;
+}
+
+.alert-card-container {
+    max-width: 440px !important;
+    text-align: center;
+    animation: alertBounce 0.2s ease-out;
+}
+
+.custom-alert-overlay .alert-card-container {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transform: scale(1);
+    transition: transform 0.2s ease;
+}
+
+.alert-body {
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.alert-icon-warning {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.alert-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0;
+}
+
+.alert-message {
+    font-size: 0.875rem;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0 0 0.5rem 0;
+}
+
+.alert-actions-layout {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.alert-actions-layout .btn-danger-action,
+.modal-actions .btn-danger-action {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border: 1px solid #dc2626 !important;
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 550;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.alert-actions-layout .btn-danger-action:hover,
+.modal-actions .btn-danger-action:hover {
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+}
+
+.alert-actions-layout .btn-danger-action:focus-visible,
+.modal-actions .btn-danger-action:focus-visible {
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #dc2626 !important;
+}
+
+@keyframes alertBounce {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   7. SECCIÓN DE MATERIALES Y AUTOCOMPLETADO PREDICTIVO
+   ========================================================================== */
+.material-picker-section {
+    background-color: var(--bg-main);
+    padding: 1.25rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+}
+
+.material-picker-section h3 {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    margin: 4px 0 0 0;
+    padding: 0.25rem 0;
+    list-style: none;
+    z-index: 50;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.autocomplete-suggestions li {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #334155;
+    border-bottom: 1px solid var(--bg-main);
+    transition: background-color 0.15s ease;
+}
+
+.autocomplete-suggestions li:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestions li:hover {
+    background-color: var(--bg-main);
+    color: var(--primary);
+}
+
+.suggestion-details {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.stock-display-box {
+    width: 100%;
+    height: 36px;
+    background-color: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    color: #115e59;
+    border-radius: 6px;
+    padding: 0 0.75rem;
+    font-size: 0.813rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    letter-spacing: 0.025em;
+}
+
+.stock-display-box.low-stock {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+/* ==========================================================================
+   8. TABLAS DE ENLISTADO INTERNO Y ELEMENTOS CHECKBOX
+   ========================================================================== */
+.materials-list-wrapper {
+    margin-top: 0.25rem;
+}
+
+.list-title {
+    font-size: 0.813rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.empty-list-notice {
+    padding: 1.5rem;
+    text-align: center;
+    background-color: var(--bg-white);
+    color: var(--text-muted);
+    border-radius: 6px;
+    border: 1px dashed #cbd5e1;
+    font-size: 0.85rem;
+}
+
+.nested-materials-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.nested-materials-table th {
+    background-color: var(--bg-main);
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.6rem 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nested-materials-table td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    color: #334155;
+}
+
+.nested-materials-table tr:last-child td {
+    border-bottom: none;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    height: 36px;
+}
+
+.checkbox-label-inverted {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.84rem;
+    font-weight: 400;
+    cursor: pointer;
+    user-select: none;
+    color: #334155;
+}
+
+.checkbox-label-inverted input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    order: 2;
+    margin: 0;
+}
+
+/* ==========================================================================
+   9. TOTALES FINANCIEROS Y CIERRE DE BALANCES (FOOTER)
+   ========================================================================== */
+.modal-sales-footer {
+    background-color: var(--bg-main);
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.total-line {
+    display: flex; 
+    justify-content: space-between;
+    padding: 0.25rem 0; 
+    font-size: 0.875rem;
+    color: #475569;
+}
+
+.main-total {
+    font-weight: 600; 
+    font-size: 1.15rem;
+    color: var(--primary);
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 0.75rem; 
+    margin-top: 0.5rem;
+}
+
+.modal-actions {
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 0.5rem;
+    margin-top: 0.5rem; 
+    border-top: 1px solid #f1f5f9; 
+    padding-top: 1.25rem;
+}
+
+/* ==========================================================================
+   11. AMPLIACIÓN DE VISTA DETALLADA: FACTURA / COMPROBANTE (SIGAF)
+   ========================================================================== */
+.invoice-meta-summary {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.meta-item .meta-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.meta-item .meta-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.invoice-description-block {
+    grid-column: span 2;
+    background-color: var(--bg-white);
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #334155;
+    min-height: 60px;
+    word-break: break-word;
+}
+/* ==========================================================================
+   12. OPTIMIZACIÓN DEL MODAL DE DETALLES (ESTADÍSTICAS Y CLIENTES CORPORATIVOS)
+   ========================================================================== */
+.detail-section-block {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.section-block-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.35rem;
+}
+
+/* Grid dinámico de datos de cliente */
+.client-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.info-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    word-break: break-word;
+}
+
+/* Bloque e indicadores de estadísticas de venta */
+.statistics-block {
+    background-color: var(--bg-main) !important;
+}
+
+.stats-cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+}
+
+.stat-card {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
+
+.stat-card .stat-label {
+    font-size: 0.725rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.stat-card .stat-number {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary);
+}
+
+/* Tarjeta destacada de total */
+.stat-card.total-highlight {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.stat-card.total-highlight .stat-label {
+    color: #94a3b8;
+}
+
+.stat-card.total-highlight .stat-number {
+    color: #ffffff;
+}
+
+/* Alineación simétrica de los botones en el footer del modal */
+.modal-actions.explicit-alignment {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Adaptabilidad para pantallas más compactas */
+@media (max-width: 640px) {
+    .stats-cards-container {
+        grid-template-columns: 1fr;
+    }
+}

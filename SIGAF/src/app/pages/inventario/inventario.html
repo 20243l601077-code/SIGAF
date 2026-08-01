@@ -1,0 +1,178 @@
+<div class="inventory-module">
+  
+  <div class="inventory-header">
+    <h1 class="inventory-title">Inventario</h1>
+    <button id="open-modal-btn" class="btn btn-primary" (click)="abrirModal()">
+      <span class="btn-icon">+</span> Agregar al inventario
+    </button>
+  </div>
+
+  <!-- SECCIÓN DE FILTROS -->
+  <div class="filters-container">
+    <div class="filter-group">
+      <label for="filter-code">Elemento:</label>
+      <input type="text" id="filter-code" placeholder="Ej. Rieles, pernos...">
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-category">Categoría:</label>
+      <select id="filter-category">
+        <option value="" disabled selected>Seleccionar</option>
+        <option value="materiales">Materiales</option>
+        <option value="herramientas">Herramientas</option>
+        <option value="repuestos">Repuestos</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filter-status">Estado:</label>
+      <select id="filter-status">
+        <option value="" disabled selected>Seleccionar</option>
+        <option value="disponible">Disponible</option>
+        <option value="bajo-stock">Bajo Stock</option>
+        <option value="agotado">Agotado</option>
+      </select>
+    </div>
+
+    <button class="btn btn-search">Buscar</button>
+  </div>
+
+  <!-- TABLA DE DATOS RESTAURADA -->
+  <div class="table-responsive">
+    <table class="inventory-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Elemento   </th>
+          <th>Categoría</th>
+          <th>Unidad</th>
+          <th>Existencia Actual</th>
+          <th>Existencia Mínima</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>#01234</strong></td>
+          <td>Riel de acero reforzado de 12m</td>
+          <td>Materiales</td>
+          <td>Pza</td>
+          <td class="text-center">45</td>
+          <td class="text-center">10</td>
+          <td><span class="badge badge-success">Disponible</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action edit" title="Editar">✏️</button>
+              <button class="btn-action delete" title="Eliminar">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        <tr class="row-alt">
+          <td><strong>#01235</strong></td>
+          <td>Pernos de anclaje de alta presión</td>
+          <td>Herramientas</td>
+          <td>Caja</td>
+          <td class="text-center text-danger">4</td>
+          <td class="text-center">15</td>
+          <td><span class="badge badge-danger">Bajo Stock</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action edit" title="Editar">✏️</button>
+              <button class="btn-action delete" title="Eliminar">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- VENTANA EMERGENTE (MODAL) -->
+  <div id="inventory-modal" class="modal-overlay" [class.is-visible]="isModalOpen" (click)="cerrarModalDesdeAfuera($event)">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Agregar Nuevo Item</h2>
+        <button type="button" id="close-modal-x" class="modal-close-x" (click)="cerrarModal()">&times;</button>
+      </div>
+      
+      <!-- Manteniendo tu #inventarioForm="ngForm" intacto -->
+      <form id="modal-form" class="modal-body" #inventarioForm="ngForm" (ngSubmit)="guardarInventario($event)">
+        <!-- Elemento -->
+        <div class="filter-group block-input">
+          <label for="modal-description">Elemento:</label>
+          <input type="text" id="modal-description" name="description" [(ngModel)]="nuevoItem.description" placeholder="Ej. Rieles, pernos..." required>
+        </div>
+
+        <!-- Categoría -->
+        <div class="filter-group block-input">
+          <label for="modal-category">Categoría:</label>
+          <select id="modal-category" name="category" [(ngModel)]="nuevoItem.category" (change)="onCategoryChange()" required>
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="materiales">Materiales</option>
+            <option value="herramientas">Herramientas</option>
+            <option value="repuestos">Repuestos</option>
+          </select>
+        </div>
+
+        <!-- SECCIÓN DINÁMICA: Unidad de Medida (Solo si es Materiales) -->
+        <!-- NOTA: Usamos [required]="nuevoItem.category === 'materiales'" para que no rompa el formulario si se oculta -->
+        <div class="material-picker-section" *ngIf="nuevoItem.category === 'materiales'">
+          <h3>Unidad de Medida</h3>
+          <div class="form-row-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div class="checkbox-group">
+              <label class="checkbox-label-inverted">
+                Metros (m)
+                <input type="radio" name="unit" value="m" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label-inverted">
+                Kilogramos (kg)
+                <input type="radio" name="unit" value="kg" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label-inverted">
+                Pieza (pza)
+                <input type="radio" name="unit" value="pza" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cantidad y Visualizador de Stock/Medida acoplados en la misma fila -->
+        <div class="form-row-grid inline-quantity-unit" [class.has-material-unit]="nuevoItem.category === 'materiales'">
+          
+          <!-- 1. Cantidad (Primero a la izquierda) -->
+          <div class="filter-group block-input">
+            <label for="modal-quantity">Cantidad a Ingresar:</label>
+            <input type="number" id="modal-quantity" name="quantity" [(ngModel)]="nuevoItem.quantity" placeholder="0" min="1" required>
+          </div>
+
+          <!-- 2. Unidad Seleccionada (Segundo a la derecha - Solo si es Materiales) -->
+          <div class="filter-group block-input" *ngIf="nuevoItem.category === 'materiales'">
+            <label>Unidad:</label>
+            <div class="stock-display-box">
+              {{ nuevoItem.unit ? nuevoItem.unit.toUpperCase() : 'Sin definir' }}
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Proveedor -->
+        <div class="filter-group block-input">
+          <label for="modal-provider">Proveedor:</label>
+          <input type="text" id="modal-provider" name="provider" [(ngModel)]="nuevoItem.provider" placeholder="Nombre del proveedor" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-modal" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          
+          <!-- CAMBIO CLAVE AQUÍ: Se añade [disabled]="inventarioForm.invalid" para activar los estilos CSS -->
+          <button type="submit" class="btn btn-primary" [disabled]="inventarioForm.invalid">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

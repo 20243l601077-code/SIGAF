@@ -1,0 +1,253 @@
+/* ==========================================================================
+   ESTRUCTURA GENERAL (ENFOQUE CORPORATIVO MINIMALISTA)
+   ========================================================================== */
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* SIDEBAR (ANCHO CONGELADO - DISEÑO DE ALTA GAMA) */
+.header-container {
+    width: 260px;
+    min-width: 260px; 
+    max-width: 260px; 
+    flex-shrink: 0;   
+    min-height: 100vh;
+    background-color: #38595c; /* Tono pizarra suavizado para ambiente premium */
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 0;
+    box-sizing: border-box;
+    position: relative; 
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+/* MAIN CONTENT (FONDO GRIS CLARO CORPORATIVO) */
+.main-content {
+    flex: 1;
+    padding: 3rem;
+    background-color: #f8fafc; /* Gris neutro extremadamente limpio */
+    box-sizing: border-box;
+    transition: padding 0.25s ease; 
+}
+
+/* ==========================================================================
+   ESTADOS DEL SIDEBAR (COLLAPSED)
+   ========================================================================== */
+.header-container.collapsed {
+    width: 70px; 
+    min-width: 70px;  
+    max-width: 70px;
+}
+
+/* Ocultar el texto de navegación de manera fluida */
+.header-container.collapsed .nav-text {
+    max-width: 0;
+    display: inline-block;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, max-width 0.15s ease;
+}
+
+/* Indicador lateral activo cuando esté colapsado */
+.header-container.collapsed .nav-link-custom.active::before {
+    display: block !important;
+    left: 0; 
+    height: 100%; 
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+}
+
+/* ==========================================================================
+   BOTÓN DE REPLIEGUE (MINIMALISTA E INTEGRADO A LA ESTRUCTURA)
+   ========================================================================== */
+.toggle-btn {
+    position: absolute;
+    top: 3.2rem;                 
+    right: -12px;             
+    background-color: #38595c; 
+    color: rgba(255, 255, 255, 0.8);           
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 6px; /* Bordes ligeramente suavizados en vez de un círculo */      
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;             
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    font-size: 0.75rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.25s ease;
+}
+
+.toggle-btn:hover {
+    background-color: #2c4648; 
+    color: #ffffff;
+}
+
+.header-container.collapsed .toggle-btn {
+    transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   BRAND / LOGOS
+   ========================================================================== */
+.brand-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    margin-bottom: 2.5rem;
+}
+
+.logo-full {
+    display: block;
+    max-width: 130px;
+    height: auto;
+    object-fit: contain;
+    opacity: 0.95;
+}
+
+.logo-icon {
+    display: none; 
+    max-width: 32px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Adaptación del logo al colapsar */
+.collapsed .logo-full {
+    display: none; 
+}
+
+.collapsed .logo-icon {
+    display: block; 
+}
+
+.collapsed .brand-container {
+    padding: 0; 
+    margin-bottom: 2.5rem;
+}
+
+/* ==========================================================================
+   NAVIGATION (MENÚ SOBRIO DE ALTA LEGIBILIDAD)
+   ========================================================================== */
+.nav-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; 
+    align-items: flex-start;
+    width: 100%;
+    padding: 0 0.75rem; 
+    box-sizing: border-box;
+}
+
+.nav-link-custom {
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.15px;
+    color: rgba(241, 245, 249, 0.75); /* Opacidad elegante en lugar de texto plano */
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 0.65rem 0.85rem; 
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem; 
+    border-radius: 6px; 
+}
+
+.nav-link-custom:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.04); 
+    /* Eliminado el desplace en X para dar un look más estático e institucional */
+}
+
+.nav-link-custom.active {
+    color: #ffffff;
+    background-color: #2c4648; /* Combinación sobria mate */
+    font-weight: 500;
+}
+
+/* Indicador lateral integrado tipo barra minimalista fina */
+.nav-link-custom.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 25%;
+    width: 3px;
+    height: 50%;
+    background-color: #ffffff; 
+    border-radius: 0 2px 2px 0;
+}
+
+/* ==========================================================================
+   CONTENEDORES DE ICONOS (IMÁGENES Y EMOJIS)
+   ========================================================================== */
+.icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;     
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    flex-shrink: 0 !important;
+    font-size: 1.2rem;
+    line-height: 1;
+    opacity: 0.7; /* El icono acompaña al texto en opacidad nativa */
+    transition: opacity 0.2s ease;
+}
+
+.nav-link-custom:hover .icon,
+.nav-link-custom.active .icon {
+    opacity: 1;
+}
+
+/* Forzar que las imágenes respeten las mismas dimensiones profesionales */
+.nav-link-custom .icon img {
+    width: 20px !important;       
+    height: 20px !important;      
+    min-width: 20px !important;
+    min-height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    object-fit: contain !important; 
+    display: block !important;
+}
+
+/* ==========================================================================
+   ALINEACIÓN EXACTA EN ESTADO COLAPSADO
+   ========================================================================== */
+.header-container.collapsed .nav-container {
+    align-items: center !important;
+    padding: 0 0.5rem !important; 
+    gap: 0.5rem;          
+}
+
+.header-container.collapsed .nav-link-custom {
+    justify-content: center !important;
+    padding: 0.65rem 0 !important;
+    width: 100%;
+    gap: 0 !important;
+}
+
+.header-container.collapsed .nav-link-custom::before {
+    display: none; /* Se oculta para usar el indicador extendido al borde de la barra delgada */
+}
+
+.header-container.collapsed .nav-link-custom:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}

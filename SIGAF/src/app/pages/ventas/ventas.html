@@ -1,0 +1,386 @@
+<div class="invoices-module">
+  
+  <!-- CABECERA DEL MÓDULO -->
+  <div class="invoices-header">
+    <h1 class="invoices-title">Finanzas y Ventas</h1>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="abrirModalVenta()">
+        <span class="btn-icon">+</span> Registrar Venta
+      </button>
+      <button type="button" class="btn btn-primary" (click)="abrirModalFactura()">
+        <span class="btn-icon">+</span> Registrar Factura
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE FILTROS Y BARRA DE BÚSQUEDA INTUITIVA -->
+  <div class="filters-container">
+    <div class="search-bar-wrapper">
+      <span class="search-icon-inside">🔍</span>
+      <input 
+        type="text" 
+        class="search-input-main" 
+        [(ngModel)]="terminoBusquedaGlobal" 
+        (input)="filtrarVentas()" 
+        placeholder="Buscar ventas de forma intuitiva por folio, descripción, tipo de comprobante o cliente...">
+    </div>
+
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="filter-period">Período:</label>
+        <select id="filter-period" [(ngModel)]="filtroPeriodo" (change)="filtrarVentas()">
+          <option value="">Todos los registros</option>
+          <option value="hoy">Hoy</option>
+          <option value="mes">Este Mes</option>
+          <option value="anio">Este Año</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-status">Estado Operativo:</label>
+        <select id="filter-status" [(ngModel)]="filtroEstado" (change)="filtrarVentas()">
+          <option value="">Todos los estados</option>
+          <option value="Confirmada">Confirmadas</option>
+          <option value="Pendiente">Pendientes</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-start">Inicio:</label>
+        <input type="date" id="filter-start" [(ngModel)]="fechaInicioFiltro" (change)="filtrarVentas()">
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-end">Fin:</label>
+        <input type="date" id="filter-end" [(ngModel)]="fechaFinFiltro" (change)="filtrarVentas()">
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA PRINCIPAL DE VENTAS -->
+  <div class="table-responsive">
+    <table class="invoices-table">
+      <thead>
+        <tr>
+          <th style="width: 110px;">Fecha</th>
+          <th style="width: 100px;">Folio</th>
+          <th>Descripción de la Venta / Concepto</th>
+          <th style="width: 150px;">Tipo Comprobante</th>
+          <th style="width: 110px;">Subtotal</th>
+          <th style="width: 120px;">Total</th>
+          <th style="width: 120px;">Estado</th>
+          <th style="text-align: center; width: 130px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (venta of ventasFiltradas; track venta.id) {
+          <tr>
+            <td>{{ venta.fecha }}</td>
+            <td><strong>{{ venta.folio }}</strong></td>
+            <td>{{ venta.descripcionVenta || 'Sin descripción detallada.' }}</td>
+            <td>{{ venta.tipoComprobante }}</td>
+            <td>${{ venta.subtotal | number:'1.2-2' }}</td>
+            <td><strong>${{ venta.total | number:'1.2-2' }}</strong></td>
+            <td>
+              <span class="badge" [class.badge-success]="venta.estado === 'Confirmada'" [style.background-color]="venta.estado !== 'Confirmada' ? '#fff7ed' : ''" [style.color]="venta.estado !== 'Confirmada' ? '#c2410c' : ''">
+                {{ venta.estado }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons-icons">
+                <button type="button" class="icon-btn-action view" (click)="verDetalleVenta(venta)" title="Visualizar Venta">👁️</button>
+                <button type="button" class="icon-btn-action download" (click)="descargarArchivoVenta(venta)" title="Descargar Archivo">📥</button>
+                <button type="button" class="icon-btn-action delete" (click)="solicitarConfirmacionEliminar(venta)" title="Eliminar Registro">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+              Ningún registro coincide con los criterios de búsqueda o parámetros de filtrado establecidos.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+ <!-- MODAL: DETALLE DE LA VENTA -->
+  <div class="modal-overlay" [class.is-visible]="isModalDetalleOpen">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Detalles de la Operación en Registro</h2>
+        <button type="button" class="modal-close-x" (click)="cerrarModalDetalle()">&times;</button>
+      </div>
+
+      <div class="modal-body-scollable">
+        <!-- METADATOS PRINCIPALES -->
+        <div class="invoice-meta-summary">
+          <div class="meta-item">
+            <span class="meta-label">Folio</span>
+            <span class="meta-value">{{ ventaSeleccionadaDetalle?.folio }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Cliente Asociado</span>
+            <span class="meta-value">{{ ventaSeleccionadaDetalle?.cliente }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Fecha</span>
+            <span class="meta-value">{{ ventaSeleccionadaDetalle?.fecha }}</span>
+          </div>
+        </div>
+
+        <!-- DATOS DEL CLIENTE / CORPORACIÓN (DINÁMICO) -->
+        <div class="detail-section-block">
+          <span class="section-block-title">Información Fiscal y de Contacto</span>
+          <div class="client-info-grid">
+            <div class="info-cell">
+              <span class="info-label">RFC:</span>
+              <span class="info-value">{{ ventaSeleccionadaDetalle?.rfc || (ventaSeleccionadaDetalle?.tipoComprobante === 'FACTURA' ? 'MDF260412AA1' : '(No aplica)') }}</span>
+            </div>
+            <div class="info-cell">
+              <span class="info-label">Teléfono:</span>
+              <span class="info-value">{{ ventaSeleccionadaDetalle?.rfc || ventaSeleccionadaDetalle?.tipoComprobante === 'FACTURA' ? '+52 271 123 4567' : '(No aplica)' }}</span>
+            </div>
+            <div class="info-cell">
+              <span class="info-label">Dirección:</span>
+              <span class="info-value">{{ ventaSeleccionadaDetalle?.rfc || ventaSeleccionadaDetalle?.tipoComprobante === 'FACTURA' ? 'Av. Central No. 45, Col. Centro, CP 94500' : '(No aplica)' }}</span>
+            </div>
+            <div class="info-cell">
+              <span class="info-label">Estado del Pago:</span>
+              <span class="info-value">
+                <span class="badge" [class.badge-success]="ventaSeleccionadaDetalle?.estado === 'Confirmada'" [style.background-color]="ventaSeleccionadaDetalle?.estado !== 'Confirmada' ? '#fff7ed' : ''" [style.color]="ventaSeleccionadaDetalle?.estado !== 'Confirmada' ? '#c2410c' : ''">
+                  {{ ventaSeleccionadaDetalle?.estado === 'Confirmada' ? 'Liquidado / Pagado' : 'Pendiente de Cobro' }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO DE ESTADÍSTICAS FINANCIERAS DE LA VENTA -->
+        <div class="detail-section-block statistics-block">
+          <span class="section-block-title">Métricas y Estadísticas Económicas</span>
+          <div class="stats-cards-container">
+            <div class="stat-card">
+              <span class="stat-label">Precio sin IVA (Subtotal)</span>
+              <span class="stat-number">${{ (ventaSeleccionadaDetalle?.subtotal || 0) | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Carga del Impuesto (IVA)</span>
+              <span class="stat-number">${{ (ventaSeleccionadaDetalle?.iva || 0) | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat-card total-highlight">
+              <span class="stat-label">Total Neto Neto</span>
+              <span class="stat-number">${{ (ventaSeleccionadaDetalle?.total || 0) | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLA DE MATERIALES -->
+        <div class="materials-list-wrapper">
+          <span class="list-title">Insumos y Materiales Desglosados</span>
+          <table class="nested-materials-table">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th style="text-align: center;">Cantidad</th>
+                <th style="text-align: right;">Precio Unitario</th>
+                <th style="text-align: right;">Importe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mat of ventaSeleccionadaDetalle?.materiales">
+                <td>{{ mat.descripcion }}</td>
+                <td style="text-align: center;">{{ mat.cantidad }} {{ mat.unidad }}</td>
+                <td style="text-align: right;">${{ mat.precioUnitario | number:'1.2-2' }}</td>
+                <td style="text-align: right;">${{ mat.importe | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACCIONES DEL MODAL PERFECTAMENTE ALINEADAS -->
+      <div class="modal-actions explicit-alignment">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalDetalle()">Cerrar Vista</button>
+        <button type="button" class="btn btn-primary" (click)="descargarDesdeDetalle()">
+           Descargar Documento
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADVETENCIA / CONFIRMACIÓN DE ELIMINACIÓN -->
+  <div class="modal-overlay custom-alert-overlay" [class.is-visible]="isConfirmDeleteOpen">
+    <div class="modal-container alert-card-container">
+      <div class="alert-body">
+        <div class="alert-icon-warning">⚠️</div>
+        <h3 class="alert-title">¿Desea eliminar este registro de venta?</h3>
+        <p class="alert-message">
+          Esta acción removerá el folio <strong>{{ ventaAEliminar?.folio }}</strong>. Los materiales asignados serán recalculados en las métricas de control de SIGAF. Esta acción es definitiva.
+        </p>
+        <div class="alert-actions-layout">
+          <button type="button" class="btn btn-secondary" (click)="cancelarEliminacion()">Cancelar Operación</button>
+          <button type="button" class="btn btn-danger-action" (click)="confirmarEliminacion()">Confirmar Borrado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR NUEVA VENTA -->
+  <div id="sales-modal" class="modal-overlay" [class.is-visible]="isModalVentaOpen" (click)="cerrarModalDesdeAfuera($event, 'venta')">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Registrar Nueva Operación de Venta</h2>
+        <button type="button" class="modal-close-x" (click)="cerrarModalVenta()">&times;</button>
+      </div>
+      
+      <form id="sales-form" class="modal-body-scollable" (ngSubmit)="guardarVenta($event)">
+        <div class="form-row-grid">
+          <div class="filter-group checkbox-group">
+            <label class="checkbox-label-inverted">
+              <span>Cliente con Razón Social Fiscal</span>
+              <input type="checkbox" name="esVentaGrande" [(ngModel)]="nuevaVenta.esVentaGrande">
+            </label>
+          </div>
+          <div class="filter-group block-input">
+            <label>Tipo de Comprobante:</label>
+            <select name="tipoComprobante" [(ngModel)]="nuevaVenta.tipoComprobante" required>
+              <option value="TICKET">TICKET INTERNO</option>
+              <option value="NOTA_VENTA">NOTA DE VENTA</option>
+              <option value="FACTURA">FACTURA CFDI</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-grid">
+          @if (!nuevaVenta.esVentaGrande) {
+            <div class="filter-group block-input full-width-input">
+              <label>Nombre del Cliente:</label>
+              <input type="text" name="clienteNombre" [(ngModel)]="nuevaVenta.clienteNombre" placeholder="Público General / Cliente Eventual" required>
+            </div>
+          }
+          @if (nuevaVenta.esVentaGrande) {
+            <div class="filter-group block-input">
+              <label>Cliente Corporativo:</label>
+              <select name="clienteSeleccionadoId" [(ngModel)]="nuevaVenta.clienteSeleccionadoId" (change)="actualizarClienteCorporativo()" required>
+                <option [ngValue]="null" disabled selected>Seleccione Razón Social</option>
+                @for (c of catalogoClientes; track c.id) {
+                  <option [ngValue]="c.id">{{ c.razonSocial }}</option>
+                }
+              </select>
+            </div>
+            <div class="filter-group block-input">
+              <label>RFC:</label>
+              <input type="text" [value]="nuevaVenta.clienteRfc || 'Sin RFC asignado'" disabled style="background-color: #f1f5f9;">
+            </div>
+          }
+        </div>
+
+        <div class="filter-group block-input full-width-input">
+          <label>Descripción / Observaciones del Registro:</label>
+          <input type="text" name="descripcionVenta" [(ngModel)]="nuevaVenta.descripcionVenta" placeholder="Agrega aquí los detalles esenciales de la venta">
+        </div>
+
+        <!-- SECCIÓN: BUSCADOR DE MATERIALES -->
+        <div class="material-picker-section">
+          <h3>Buscador Avanzado de Inventario</h3>
+          <div class="filter-group block-input full-width-input" style="position: relative;">
+            <label>Filtrar producto:</label>
+            <input 
+              type="text" 
+              name="busquedaMaterial" 
+              [(ngModel)]="terminoBusquedaMaterial" 
+              (input)="filtrarMateriales()"
+              placeholder="Escriba palabras clave del material..."
+              autocomplete="off">
+
+            @if (sugerenciasMateriales.length > 0) {
+              <ul class="autocomplete-suggestions">
+                @for (mat of sugerenciasMateriales; track mat.id) {
+                  <li (click)="seleccionarMaterialSugerido(mat)">
+                    <strong>{{ mat.descripcion }}</strong> 
+                    <span class="suggestion-details"> - Precio: ${{ mat.precioUnitario }} | Stock: {{ mat.stockActual }} {{ mat.unidad }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="form-row-grid split-material-stock">
+            <div class="filter-group block-input">
+              <label>Disponibilidad:</label>
+              <div class="stock-display-box" [class.low-stock]="stockDisponible <= 5 && materialSeleccionadoId !== null">
+                <span>{{ materialSeleccionadoId ? stockDisponible + ' ' + unidadMedidaSeleccionada : 'Ninguno seleccionado' }}</span>
+              </div>
+            </div>
+            <div class="filter-group block-input">
+              <label>Cantidad a Vender:</label>
+              <input type="number" name="cantMaterial" [(ngModel)]="cantidadMaterial" min="1" placeholder="Cantidad">
+            </div>
+          </div>
+
+          <div class="add-list-container">
+            <button type="button" class="btn btn-add-list" (click)="agregarMaterial()">Insertar a la Lista</button>
+          </div>
+        </div>
+
+        <!-- CARRO INTERNO DE MATERIALES -->
+        <div class="materials-list-wrapper">
+          <table class="nested-materials-table" *ngIf="nuevaVenta.materiales.length > 0">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>P. Unitario</th>
+                <th>Cantidad</th>
+                <th>Importe</th>
+                <th>Remover</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of nuevaVenta.materiales; let idx = index">
+                <td>{{ item.descripcion }}</td>
+                <td>${{ item.precioUnitario | number:'1.2-2' }}</td>
+                <td>{{ item.cantidad }} {{ item.unidad }}</td>
+                <td>${{ item.importe | number:'1.2-2' }}</td>
+                <td>
+                  <button type="button" class="btn-remove-item" (click)="removerMaterial(idx)">&times;</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="empty-list-notice" *ngIf="nuevaVenta.materiales.length === 0">
+            No has añadido ítems al carro de ventas.
+          </div>
+        </div>
+
+        <div class="form-row-grid" style="margin-top: 1rem;">
+          <div class="filter-group checkbox-group">
+            <label class="checkbox-label-inverted">
+              <span>Habilitar cálculo con IVA (16%)</span>
+              <input type="checkbox" name="aplicarIva" [(ngModel)]="nuevaVenta.aplicarIva" (change)="calcularTotalesVenta()">
+            </label>
+          </div>
+          <div class="filter-group block-input">
+            <label>Estado Inicial:</label>
+            <select name="estado" [(ngModel)]="nuevaVenta.estado">
+              <option value="CONFIRMADA">CONFIRMADA</option>
+              <option value="PENDIENTE">PENDIENTE</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-sales-footer">
+          <div class="total-line"><span>Subtotal:</span><strong>${{ nuevaVenta.subtotal | number:'1.2-2' }}</strong></div>
+          <div class="total-line main-total"><span>Total Final:</span><span>${{ nuevaVenta.total | number:'1.2-2' }}</span></div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalVenta()">Cerrar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="nuevaVenta.materiales.length === 0">Guardar Venta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
