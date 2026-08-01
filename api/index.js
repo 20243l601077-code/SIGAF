@@ -1,20 +1,22 @@
+require('dotenv').config(); // 1. Cargar variables de entorno
+
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// Configuracion de conexion a PostgreSQL
+// Configuracion de conexion a PostgreSQL usando variables de entorno
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'sigaf_bd',
-  password: 'Postgres',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 // Prevencion de cierres inesperados por errores no capturados
