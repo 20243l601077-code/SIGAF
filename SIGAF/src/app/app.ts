@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +12,5 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 export class App {
   protected readonly title = signal('SIGAF');
   isCollapsed = signal<boolean>(false);
+  public router = inject(Router); 
 }

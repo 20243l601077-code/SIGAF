@@ -1,0 +1,139 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f6f9;
+}
+
+.login-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 350px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+/* Contenedor para pegar el input con el addon */
+.input-addon-group {
+  display: flex;
+  align-items: center;
+}
+
+/* Quita los bordes redondeados de la derecha para acoplar el addon */
+.input-addon-group input {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* Estilo para la etiqueta @sigaf.com */
+.addon {
+  background-color: #e9ecef;
+  border: 1px solid #ccc;
+  padding: 0.6rem 0.8rem;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.form-group > input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 0.7rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.error-text {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.error-text-general {
+  color: #dc3545;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Contenedor relativo para posicionar el ojito dentro */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* El input recupera sus bordes redondeados completos y ocupa el 100% */
+.password-wrapper input {
+  width: 100%;
+  padding: 0.6rem;
+  padding-right: 2.5rem; /* Espacio reservado a la derecha para que el texto no tape el icono */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Boton del ojito transparente e incrustado a la derecha */
+.btn-eye {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  padding: 0;
+  margin: 0;
+  width: auto;
+}
+
+.btn-eye:hover {
+  color: #333;
+}
