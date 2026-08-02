@@ -1,23 +1,29 @@
 <div class="inventory-module">
-  
+
   <div class="inventory-header">
-    <h1 class="inventory-title">Inventario</h1>
-    <button id="open-modal-btn" class="btn btn-primary" (click)="abrirModal()">
-      <span class="btn-icon">+</span> Agregar al inventario
-    </button>
+    <h1 class="inventory-title">Control de Inventario - SIGAF</h1>
+    <div style="display: flex; gap: 0.75rem;">
+      <!-- Corregido el type para evitar problemas con formularios del fondo y garantizar apertura -->
+      <button type="button" id="open-stock-modal-btn" class="btn btn-secondary" (click)="abrirAddStockModalGlobal()">
+        ➕ Reabastecer Stock
+      </button>
+      <button type="button" id="open-modal-btn" class="btn btn-primary" (click)="abrirModal()">
+        <span class="btn-icon">+</span> Registrar Nuevo Insumo
+      </button>
+    </div>
   </div>
 
-  <!-- SECCIÓN DE FILTROS -->
+  <!-- SECCIÓN DE BÚSQUEDA DINÁMICA (ESTILO VENTAS) -->
   <div class="filters-container">
-    <div class="filter-group">
-      <label for="filter-code">Elemento:</label>
-      <input type="text" id="filter-code" placeholder="Ej. Rieles, pernos...">
+    <div class="filter-group text-search">
+      <label for="filter-text">Buscar Elemento:</label>
+      <input type="text" id="filter-text" placeholder="Ej. Código, Descripción o Proveedor..." [(ngModel)]="filterText">
     </div>
 
     <div class="filter-group">
       <label for="filter-category">Categoría:</label>
-      <select id="filter-category">
-        <option value="" disabled selected>Seleccionar</option>
+      <select id="filter-category" [(ngModel)]="filterCategory">
+        <option value="">Todas las categorías</option>
         <option value="materiales">Materiales</option>
         <option value="herramientas">Herramientas</option>
         <option value="repuestos">Repuestos</option>
@@ -26,152 +32,277 @@
 
     <div class="filter-group">
       <label for="filter-status">Estado:</label>
-      <select id="filter-status">
-        <option value="" disabled selected>Seleccionar</option>
+      <select id="filter-status" [(ngModel)]="filterStatus">
+        <option value="">Todos los estados</option>
         <option value="disponible">Disponible</option>
-        <option value="bajo-stock">Bajo Stock</option>
+        <option value="bajo stock">Bajo Stock</option>
         <option value="agotado">Agotado</option>
       </select>
     </div>
 
-    <button class="btn btn-search">Buscar</button>
+    <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()" title="Restablecer búsquedas">Limpiar</button>
   </div>
 
-  <!-- TABLA DE DATOS RESTAURADA -->
+  <!-- TABLA DE CONTROL DE INVENTARIO -->
   <div class="table-responsive">
     <table class="inventory-table">
       <thead>
         <tr>
           <th>Código</th>
-          <th>Elemento   </th>
+          <th>Elemento / Descripción</th>
           <th>Categoría</th>
           <th>Unidad</th>
-          <th>Existencia Actual</th>
-          <th>Existencia Mínima</th>
+          <!-- Cabecera adaptada de forma general -->
+          <th class="text-right">Costo / Precio</th>
+          <th class="text-center">Stock</th>
           <th>Estado</th>
-          <th>Acciones</th>
+          <th style="text-align: center; width: 120px;">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>#01234</strong></td>
-          <td>Riel de acero reforzado de 12m</td>
-          <td>Materiales</td>
-          <td>Pza</td>
-          <td class="text-center">45</td>
-          <td class="text-center">10</td>
-          <td><span class="badge badge-success">Disponible</span></td>
+        <tr *ngFor="let item of filteredInventario">
+          <td><strong>{{ item.codigo }}</strong></td>
+          <td>{{ item.description }}</td>
+          <td style="text-transform: capitalize;">{{ item.category }}</td>
+          <td>{{ item.unit }}</td>
+          
+          <!-- Condicional: Si es herramienta muestra "No aplica a venta", sino, su precio normal -->
+          <td class="text-right">
+            <ng-container *ngIf="item.category === 'herramientas'; else precioVentaTemplate">
+              <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No aplica a venta</span>
+            </ng-container>
+            <ng-template #precioVentaTemplate>
+              <strong>${{ item.precioUnitario | number:'1.2-2' }}</strong>
+            </ng-template>
+          </td>
+
+          <td class="text-center" [class.text-danger]="item.estado !== 'Disponible'">{{ item.quantity }}</td>
+          <td>
+            <span class="badge" [class.badge-success]="item.estado === 'Disponible'"
+              [class.badge-danger]="item.estado !== 'Disponible'">
+              {{ item.estado }}
+            </span>
+          </td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action edit" title="Editar">✏️</button>
-              <button class="btn-action delete" title="Eliminar">🗑️</button>
+              <button type="button" class="btn-action view" (click)="abrirDetailsModal(item)" title="Ver Detalles">👁️</button>
+              <button type="button" class="btn-action delete" (click)="abrirDeleteModal(item)" title="Eliminar Material">🗑️</button>
             </div>
           </td>
         </tr>
-        <tr class="row-alt">
-          <td><strong>#01235</strong></td>
-          <td>Pernos de anclaje de alta presión</td>
-          <td>Herramientas</td>
-          <td>Caja</td>
-          <td class="text-center text-danger">4</td>
-          <td class="text-center">15</td>
-          <td><span class="badge badge-danger">Bajo Stock</span></td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn-action edit" title="Editar">✏️</button>
-              <button class="btn-action delete" title="Eliminar">🗑️</button>
-            </div>
+        <tr *ngIf="filteredInventario.length === 0">
+          <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+            Ningún insumo coincide con los criterios de búsqueda declarados.
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- VENTANA EMERGENTE (MODAL) -->
-  <div id="inventory-modal" class="modal-overlay" [class.is-visible]="isModalOpen" (click)="cerrarModalDesdeAfuera($event)">
-    <div class="modal-container">
+  <!-- MODAL 1: REGISTRAR ELEMENTO NUEVO (REDISEÑO AMPLIO HORIZONTAL) -->
+  <div class="modal-overlay" [class.is-visible]="isModalOpen" (click)="cerrarModalesDesdeAfuera($event)">
+    <div class="modal-container modal-wide">
       <div class="modal-header">
-        <h2>Agregar Nuevo Item</h2>
-        <button type="button" id="close-modal-x" class="modal-close-x" (click)="cerrarModal()">&times;</button>
+        <h2>Agregar Nuevo Item al Catálogo</h2>
+        <button type="button" class="modal-close-x" (click)="cerrarModal()">&times;</button>
       </div>
-      
-      <!-- Manteniendo tu #inventarioForm="ngForm" intacto -->
-      <form id="modal-form" class="modal-body" #inventarioForm="ngForm" (ngSubmit)="guardarInventario($event)">
-        <!-- Elemento -->
-        <div class="filter-group block-input">
-          <label for="modal-description">Elemento:</label>
-          <input type="text" id="modal-description" name="description" [(ngModel)]="nuevoItem.description" placeholder="Ej. Rieles, pernos..." required>
-        </div>
 
-        <!-- Categoría -->
-        <div class="filter-group block-input">
-          <label for="modal-category">Categoría:</label>
-          <select id="modal-category" name="category" [(ngModel)]="nuevoItem.category" (change)="onCategoryChange()" required>
-            <option value="" disabled selected>Seleccionar</option>
-            <option value="materiales">Materiales</option>
-            <option value="herramientas">Herramientas</option>
-            <option value="repuestos">Repuestos</option>
-          </select>
-        </div>
+      <form class="modal-body" #inventarioForm="ngForm" (ngSubmit)="guardarInventario($event)">
+        <div class="modal-grid-layout">
+          <!-- Columna Izquierda -->
+          <div class="modal-column">
+            <div class="filter-group block-input">
+              <label>Elemento / Descripción del Item:</label>
+              <input type="text" name="description" [(ngModel)]="nuevoItem.description"
+                placeholder="Ej. Rieles, pernos..." required>
+            </div>
 
-        <!-- SECCIÓN DINÁMICA: Unidad de Medida (Solo si es Materiales) -->
-        <!-- NOTA: Usamos [required]="nuevoItem.category === 'materiales'" para que no rompa el formulario si se oculta -->
-        <div class="material-picker-section" *ngIf="nuevoItem.category === 'materiales'">
-          <h3>Unidad de Medida</h3>
-          <div class="form-row-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px;">
-            <div class="checkbox-group">
-              <label class="checkbox-label-inverted">
-                Metros (m)
-                <input type="radio" name="unit" value="m" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
-              </label>
+            <div class="filter-group block-input">
+              <label>Categoría de Insumo:</label>
+              <select name="category" [(ngModel)]="nuevoItem.category" (change)="onCategoryChange()" required>
+                <option value="" disabled selected>Seleccionar Categoría</option>
+                <option value="materiales">Materiales</option>
+                <option value="herramientas">Herramientas</option>
+                <option value="repuestos">Repuestos</option>
+              </select>
             </div>
-            <div class="checkbox-group">
-              <label class="checkbox-label-inverted">
-                Kilogramos (kg)
-                <input type="radio" name="unit" value="kg" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
-              </label>
-            </div>
-            <div class="checkbox-group">
-              <label class="checkbox-label-inverted">
-                Pieza (pza)
-                <input type="radio" name="unit" value="pza" [(ngModel)]="nuevoItem.unit" [required]="nuevoItem.category === 'materiales'">
-              </label>
+
+            <!-- Unidad de Medida (Solo Materiales) -->
+            <div class="material-picker-section" *ngIf="nuevoItem.category === 'materiales'">
+              <h3>Unidad de Medida</h3>
+              <div class="form-row-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <div class="checkbox-group"><label class="checkbox-label-inverted">Metros (m)<input type="radio"
+                      name="unit" value="m" [(ngModel)]="nuevoItem.unit" required></label></div>
+                <div class="checkbox-group"><label class="checkbox-label-inverted">Kilos (kg)<input type="radio"
+                      name="unit" value="kg" [(ngModel)]="nuevoItem.unit" required></label></div>
+                <div class="checkbox-group"><label class="checkbox-label-inverted">Pieza (pza)<input type="radio"
+                      name="unit" value="pza" [(ngModel)]="nuevoItem.unit" required></label></div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Cantidad y Visualizador de Stock/Medida acoplados en la misma fila -->
-        <div class="form-row-grid inline-quantity-unit" [class.has-material-unit]="nuevoItem.category === 'materiales'">
-          
-          <!-- 1. Cantidad (Primero a la izquierda) -->
-          <div class="filter-group block-input">
-            <label for="modal-quantity">Cantidad a Ingresar:</label>
-            <input type="number" id="modal-quantity" name="quantity" [(ngModel)]="nuevoItem.quantity" placeholder="0" min="1" required>
-          </div>
+          <!-- Columna Derecha -->
+          <div class="modal-column">
+            <div class="form-row-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <!-- Se restringen los decimales dinámicamente: si NO es material, el paso es estricto de 1 en 1 -->
+              <div class="filter-group block-input">
+                <label>Cantidad Inicial:</label>
+                <input type="number" name="quantity" [(ngModel)]="nuevoItem.quantity" placeholder="0" [min]="0.0001"
+                  [step]="nuevoItem.category !== 'materiales' ? '1' : 'any'" required>
+              </div>
+              <div class="filter-group block-input">
+                <label>Stock Mínimo:</label>
+                <input type="number" name="minima" [(ngModel)]="nuevoItem.minima" [min]="0.0001"
+                  [step]="nuevoItem.category !== 'materiales' ? '1' : 'any'" required>
+              </div>
+            </div>
 
-          <!-- 2. Unidad Seleccionada (Segundo a la derecha - Solo si es Materiales) -->
-          <div class="filter-group block-input" *ngIf="nuevoItem.category === 'materiales'">
-            <label>Unidad:</label>
-            <div class="stock-display-box">
-              {{ nuevoItem.unit ? nuevoItem.unit.toUpperCase() : 'Sin definir' }}
+            <!-- Ajuste de etiqueta dinámica: si es herramienta cambia el concepto del precio -->
+            <div class="filter-group block-input">
+              <label>
+                {{ nuevoItem.category === 'herramientas' ? 'Precio de Adquisición ($):' : 'Precio Unitario Base ($):' }}
+              </label>
+              <input type="number" name="precioUnitario" [(ngModel)]="nuevoItem.precioUnitario" placeholder="0.00"
+                step="0.01" [min]="0.01" required>
+            </div>
+
+            <div class="filter-group block-input">
+              <label>Proveedor Designado:</label>
+              <input type="text" name="provider" [(ngModel)]="nuevoItem.provider" placeholder="Nombre del distribuidor"
+                required>
             </div>
           </div>
-          
-        </div>
-
-        <!-- Proveedor -->
-        <div class="filter-group block-input">
-          <label for="modal-provider">Proveedor:</label>
-          <input type="text" id="modal-provider" name="provider" [(ngModel)]="nuevoItem.provider" placeholder="Nombre del proveedor" required>
         </div>
 
         <div class="modal-actions">
-          <button type="button" id="btn-cancel-modal" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          
-          <!-- CAMBIO CLAVE AQUÍ: Se añade [disabled]="inventarioForm.invalid" para activar los estilos CSS -->
-          <button type="submit" class="btn btn-primary" [disabled]="inventarioForm.invalid">Guardar</button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="inventarioForm.invalid">Guardar Registro</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: VISTA DETALLADA -->
+  <div class="modal-overlay" [class.is-visible]="isDetailsModalOpen" (click)="cerrarModalesDesdeAfuera($event)">
+    <div class="modal-container" modal-wide>
+      <div class="modal-header" style="background-color: var(--primary); color: white;">
+        <h2 style="color: white;">Ficha Detallada: {{ selectedItem?.codigo }}</h2>
+        <button type="button" class="modal-close-x" style="color: white;"
+          (click)="cerrarDetailsModal()">&times;</button>
+      </div>
+      <div class="modal-body read-only-details">
+        <div class="detail-row"><strong>Descripción:</strong> <span>{{ selectedItem?.description }}</span></div>
+        <div class="detail-row"><strong>Categoría:</strong> <span style="text-transform: capitalize;">{{ selectedItem?.category }}</span></div>
+        <div class="detail-row"><strong>Unidad base:</strong> <span>{{ selectedItem?.unit }}</span></div>
+        <div class="detail-row"><strong>Existencia Actual:</strong> <span>{{ selectedItem?.quantity }} unidades</span></div>
+        <div class="detail-row"><strong>Stock de Alerta:</strong> <span>{{ selectedItem?.minima }} unidades</span></div>
+        
+        <!-- Etiqueta de precio adaptada según la categoría del ítem seleccionado -->
+        <div class="detail-row">
+          <strong>{{ selectedItem?.category === 'herramientas' ? 'Precio de Adquisición:' : 'Precio Inventario:' }}</strong> 
+          <span class="text-success">${{ selectedItem?.precioUnitario | number:'1.2-2' }} MXN</span>
+        </div>
+        
+        <div class="detail-row"><strong>Proveedor Oficial:</strong> <span>{{ selectedItem?.provider }}</span></div>
+        <div class="detail-row"><strong>Estado:</strong> <span class="badge"
+            [class.badge-success]="selectedItem?.estado === 'Disponible'"
+            [class.badge-danger]="selectedItem?.estado !== 'Disponible'">{{ selectedItem?.estado }}</span></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" style="width: 100%;" (click)="cerrarDetailsModal()">Cerrar Vista</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: REABASTECIMIENTO DE STOCK GLOBAL CON BÚSQUEDA INTERNA -->
+  <div class="modal-overlay" [class.is-visible]="isAddStockModalOpen" (click)="cerrarModalesDesdeAfuera($event)">
+    <div class="modal-container modal-wide">
+      <div class="modal-header">
+        <h2>Módulo de Reabastecimiento Centralizado</h2>
+        <button type="button" class="modal-close-x" (click)="cerrarAddStockModal()">&times;</button>
+      </div>
+      <form class="modal-body" #addStockForm="ngForm" (ngSubmit)="procesarMasStock($event)">
+
+        <div class="modal-grid-layout">
+          <!-- Columna Izquierda: Búsqueda del Insumo -->
+          <div class="modal-column">
+            <div class="filter-group block-input">
+              <label>Ingrese el Código del Insumo:</label>
+              <input type="text" name="buscarCodigo" [(ngModel)]="buscarCodigo" placeholder="Ej: #01234 o #01235"
+                required>
+            </div>
+
+            <!-- Ficha Técnica Dinámica del Insumo Localizado -->
+            <div class="material-picker-section" *ngIf="insumoEncontradoPorCodigo; else noEncontradoTemplate">
+              <h3 style="color: #166534;">Insumo Localizado</h3>
+              <div class="read-only-details" style="margin-top: 0.5rem;">
+                <div class="detail-row"><strong>Nombre:</strong> <span>{{ insumoEncontradoPorCodigo.description }}</span></div>
+                <div class="detail-row"><strong>Categoría:</strong> <span style="text-transform: capitalize;">{{ insumoEncontradoPorCodigo.category }}</span></div>
+                <div class="detail-row"><strong>Stock Actual:</strong> <span>{{ insumoEncontradoPorCodigo.quantity }} ({{ insumoEncontradoPorCodigo.unit }})</span></div>
+                
+                <!-- Ajuste de concepto en la sub-ficha en tiempo real -->
+                <div class="detail-row">
+                  <strong>{{ insumoEncontradoPorCodigo.category === 'herramientas' ? 'Último Costo Adquisición:' : 'Precio Declarado:' }}</strong> 
+                  <span>${{ insumoEncontradoPorCodigo.precioUnitario | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+            <ng-template #noEncontradoTemplate>
+              <div class="modal-notice-text"
+                style="background-color: #fff1f2; border-left-color: #f43f5e; color: #9f1239;">
+                Ingrese un código válido registrado en el sistema SIGAF para poder reabastecer sus existencias.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Columna Derecha: Datos de Carga -->
+          <div class="modal-column">
+            <div class="filter-group block-input">
+              <label>Cantidad Nueva a Sumar al Stock:</label>
+              <!-- Validación del step dinámico: restringe decimales si no pertenece a la categoría materiales -->
+              <input type="number" name="cantidadNueva" [(ngModel)]="reabastecimiento.cantidadNueva" placeholder="0"
+                [min]="0.0001" [step]="insumoEncontradoPorCodigo?.category !== 'materiales' ? '1' : 'any'"
+                [disabled]="!insumoEncontradoPorCodigo" required>
+            </div>
+
+            <div class="filter-group block-input">
+              <label>
+                {{ insumoEncontradoPorCodigo?.category === 'herramientas' ? 'Nuevo Costo de Adquisición ($):' : 'Nuevo Costo Unitario ($):' }}
+              </label>
+              <input type="number" name="precioAdquisicion" [(ngModel)]="reabastecimiento.precioAdquisicion"
+                placeholder="Vacío para mantener actual" step="0.01" [min]="0.01"
+                [disabled]="!insumoEncontradoPorCodigo">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <!-- type="button" explícito para mitigar cierres forzados del árbol de componentes -->
+          <button type="button" class="btn btn-secondary" (click)="cerrarAddStockModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary"
+            [disabled]="addStockForm.invalid || !insumoEncontradoPorCodigo">Procesar Reabastecimiento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: CONFIRMACIÓN DE ELIMINACIÓN -->
+  <div class="modal-overlay" [class.is-visible]="isDeleteModalOpen" (click)="cerrarModalesDesdeAfuera($event)">
+    <div class="modal-container" style="max-width: 400px; border-top: 4px solid #df2c2c;">
+      <div class="modal-header">
+        <h2 style="color: #df2c2c;">⚠️ ¿Confirmar Eliminación?</h2>
+        <button type="button" class="modal-close-x" (click)="cerrarDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin: 0; color: #334155; line-height: 1.5;">
+          ¿Está completamente seguro de eliminar el material <strong>{{ selectedItem?.description }}</strong> ({{ selectedItem?.codigo }}) del catálogo de SIGAF? Esta acción no se puede deshacer.
+        </p>
+        <div class="modal-actions" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" (click)="cerrarDeleteModal()">Cancelar</button>
+          <button type="button" class="btn btn-danger-action" (click)="confirmarEliminar()">Eliminar Definitivamente</button>
+        </div>
+      </div>
     </div>
   </div>
 

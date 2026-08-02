@@ -3,7 +3,7 @@ import { LoginComponent } from './pages/login/login'; // <--- 1. Importamos Logi
 import { Principal } from './pages/principal/principal';
 import { VentasComponent } from './pages/ventas/ventas';
 import { CotizacionComponent } from './pages/cotizacion/cotizacion';
-import { Inventario } from './pages/inventario/inventario';
+import { InventarioComponent } from './pages/inventario/inventario';
 import { Reportes } from './pages/reportes/reportes';
 import { Empleados } from './pages/empleados/empleados';
 import { Clientes } from './pages/clientes/clientes';
@@ -26,7 +26,7 @@ export const routes: Routes = [
     path: 'cotizacion', component: CotizacionComponent
   },
   { 
-    path: 'inventario', component: Inventario 
+    path: 'inventario', component: InventarioComponent 
   },
   { 
     path: 'reportes', component: Reportes 
