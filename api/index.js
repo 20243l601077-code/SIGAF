@@ -8,9 +8,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
 
-// Configuracion de conexion a PostgreSQL usando variables de entorno
+// Aumentamos el límite para permitir el envío de imágenes en Base64
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Configuración de conexión a PostgreSQL usando variables de entorno
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -19,16 +22,17 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-// Prevencion de cierres inesperados por errores no capturados
+// Prevención de cierres inesperados por errores no capturados
 process.on('uncaughtException', (err) => {
   console.error('Error no capturado:', err.message);
 });
 
-// Endpoint de Login con validaciones y restricciones de seguridad
+// ==========================================
+// 1. ENDPOINT DE LOGIN
+// ==========================================
 app.post('/api/login', async (req, res) => {
   let { usuario, password } = req.body;
 
-  // Restriccion 1: Validar que los campos obligatorios no vengan vacios
   if (!usuario || !password) {
     return res.status(400).json({
       exito: false,
@@ -36,10 +40,8 @@ app.post('/api/login', async (req, res) => {
     });
   }
 
-  // Eliminar espacios en blanco accidentales en el correo
   usuario = usuario.trim();
 
-  // Restriccion 2: Validar la estructura del correo electronico
   const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regexCorreo.test(usuario)) {
     return res.status(400).json({
@@ -48,7 +50,6 @@ app.post('/api/login', async (req, res) => {
     });
   }
 
-  // Restriccion 3: Validar longitud minima de contraseña
   if (password.length < 4) {
     return res.status(400).json({
       exito: false,
@@ -62,7 +63,6 @@ app.post('/api/login', async (req, res) => {
       [usuario, password]
     );
 
-    // Restriccion 4: Verificar credenciales en base de datos
     if (resultado.rows.length === 0) {
       return res.status(401).json({
         exito: false,
@@ -72,7 +72,6 @@ app.post('/api/login', async (req, res) => {
 
     const usuarioEncontrado = resultado.rows[0];
 
-    // Restriccion 5: Denegar acceso si el usuario esta inactivo
     if (!usuarioEncontrado.activo) {
       return res.status(403).json({
         exito: false,
@@ -80,7 +79,6 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    // Respuesta exitosa tras pasar todas las restricciones
     res.json({
       exito: true,
       mensaje: 'Inicio de sesión exitoso',
@@ -96,6 +94,117 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+
+// ==========================================
+// 2. ENDPOINTS DE EMPLEADOS (CRUD)
+// ==========================================
+
+// GET: Obtener lista completa de empleados
+app.get('/api/empleados', async (req, res) => {
+  try {
+    const resultado = await pool.query('SELECT * FROM empleados ORDER BY id_empleado DESC');
+    res.json(resultado.rows);
+  } catch (error) {
+    console.error('Error al obtener empleados:', error.message);
+    res.status(500).json({ mensaje: 'Error al consultar empleados' });
+  }
+});
+
+// POST: Crear nuevo empleado
+app.post('/api/empleados', async (req, res) => {
+  const { 
+    nombre, 
+    apellido_paterno, 
+    apellido_materno, 
+    puesto, 
+    correo, 
+    telefono, 
+    horas_laborales, 
+    rol, 
+    foto_url 
+  } = req.body;
+
+  try {
+    const resultado = await pool.query(
+      `INSERT INTO empleados 
+        (nombre, apellido_paterno, apellido_materno, puesto, correo, telefono, horas_laborales, rol, foto_url) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+       RETURNING *`,
+      [nombre, apellido_paterno, apellido_materno || '', puesto, correo || '', telefono || '', horas_laborales, rol, foto_url || '']
+    );
+
+    res.status(201).json(resultado.rows[0]);
+  } catch (error) {
+    console.error('Error al crear empleado:', error.message);
+    res.status(500).json({ mensaje: 'Error al guardar el empleado en la BD' });
+  }
+});
+
+// PUT: Actualizar un empleado existente
+app.put('/api/empleados/:id', async (req, res) => {
+  const { id } = req.params;
+  const { 
+    nombre, 
+    apellido_paterno, 
+    apellido_materno, 
+    puesto, 
+    correo, 
+    telefono, 
+    horas_laborales, 
+    rol, 
+    foto_url 
+  } = req.body;
+
+  try {
+    const resultado = await pool.query(
+      `UPDATE empleados SET 
+        nombre = $1, 
+        apellido_paterno = $2, 
+        apellido_materno = $3, 
+        puesto = $4, 
+        correo = $5, 
+        telefono = $6, 
+        horas_laborales = $7, 
+        rol = $8, 
+        foto_url = $9 
+       WHERE id_empleado = $10 
+       RETURNING *`,
+      [nombre, apellido_paterno, apellido_materno || '', puesto, correo || '', telefono || '', horas_laborales, rol, foto_url || '', id]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    }
+
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    console.error('Error al actualizar empleado:', error.message);
+    res.status(500).json({ mensaje: 'Error al actualizar el empleado' });
+  }
+});
+
+// DELETE: Eliminar un empleado
+app.delete('/api/empleados/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const resultado = await pool.query('DELETE FROM empleados WHERE id_empleado = $1 RETURNING *', [id]);
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ mensaje: 'Empleado no encontrado' });
+    }
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error al eliminar empleado:', error.message);
+    res.status(500).json({ mensaje: 'Error al eliminar el empleado' });
+  }
+});
+
+
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
