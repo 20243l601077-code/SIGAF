@@ -15,7 +15,6 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   mensajeGeneral: string = '';
   
-  // Variable para controlar la visibilidad de la contraseña
   mostrarPassword: boolean = false;
 
   constructor(
@@ -31,7 +30,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Alterna entre mostrar y ocultar la contraseña
+  // Mostrar y ocultar la contraseña
   toggleMostrarPassword(): void {
     this.mostrarPassword = !this.mostrarPassword;
   }

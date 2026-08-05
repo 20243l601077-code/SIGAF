@@ -5,7 +5,7 @@ import { VentasComponent } from './pages/ventas/ventas';
 import { CotizacionComponent } from './pages/cotizacion/cotizacion';
 import { InventarioComponent } from './pages/inventario/inventario';
 import { Reportes } from './pages/reportes/reportes';
-import { Empleados } from './pages/empleados/empleados';
+import { EmpleadosComponent } from './pages/empleados/empleados';
 import { Clientes } from './pages/clientes/clientes';
 import { Configuraciones } from './pages/configuraciones/configuraciones';
 
@@ -32,7 +32,7 @@ export const routes: Routes = [
     path: 'reportes', component: Reportes 
   },
   { 
-    path: 'empleados', component: Empleados 
+    path: 'empleados', component: EmpleadosComponent 
   },
   { 
     path: 'configuraciones', component: Configuraciones 

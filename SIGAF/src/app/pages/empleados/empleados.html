@@ -1,9 +1,9 @@
 <div class="inventory-module">
-  
+  <!-- ENCABEZADO -->
   <div class="inventory-header">
     <h1 class="inventory-title">Control de Empleados</h1>
-    <button id="open-modal-btn" class="btn btn-primary" (click)="abrirModal()">
-      <span class="btn-icon">+</span> Registrar Empleado
+    <button class="btn btn-primary" (click)="abrirModalNuevo()">
+      + Registrar Empleado
     </button>
   </div>
 
@@ -11,20 +11,28 @@
   <div class="filters-container">
     <div class="filter-group">
       <label for="filter-name">Nombre:</label>
-      <input type="text" id="filter-name" placeholder="Buscar empleado...">
+      <input 
+        type="text" 
+        id="filter-name" 
+        placeholder="Buscar empleado..." 
+        [(ngModel)]="filtroNombre"
+        (input)="aplicarFiltros()"
+      >
     </div>
 
     <div class="filter-group">
       <label for="filter-puesto">Puesto / Área:</label>
-      <select id="filter-puesto">
-        <option value="" disabled selected>Seleccionar</option>
+      <select id="filter-puesto" [(ngModel)]="filtroPuesto" (change)="aplicarFiltros()">
+        <option value="">Todos los puestos</option>
         <option value="Administración">Administración</option>
         <option value="Operario">Operario</option>
         <option value="Logística">Logística</option>
+        <option value="Ventas">Ventas</option>
       </select>
     </div>
 
-    <button class="btn btn-search">Buscar</button>
+    <button class="btn btn-search" (click)="aplicarFiltros()">Buscar</button>
+    <button class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar</button>
   </div>
 
   <!-- TABLA DE EMPLEADOS -->
@@ -33,92 +41,191 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Nombre Completo</th>
-          <th>Puesto</th>
-          <th>Teléfono</th>
-          <th>Correo Electrónico</th>
-          <th>Salario Base</th>
-          <th>Estado</th>
-          <th>Acciones</th>
+          <th style="text-align: center;">FOTO</th>
+          <th>NOMBRE COMPLETO</th>
+          <th>PUESTO</th>
+          <th>TELÉFONO</th>
+          <th>CORREO ELECTRÓNICO</th>
+          <th>HORAS SEMANALES</th>
+          <th>ROL</th>
+          <th style="text-align: center;">ACCIONES</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>#EMP-01</strong></td>
-          <td>Carlos Mendoza Ruiz</td>
-          <td>Administración</td>
-          <td>2711234567</td>
-          <td>carlos.m@multiservicios.com</td>
-          <td class="text-center">$12,500.00</td>
-          <td><span class="badge badge-success">Activo</span></td>
+        <tr *ngFor="let emp of empleadosFiltrados">
+          <td><strong>#EMP-{{ emp.id_empleado }}</strong></td>
+          
+          <!-- COLUMNA FOTO -->
+          <td style="text-align: center;">
+            <div class="avatar-container">
+              <img 
+                *ngIf="emp.foto_url; else avatarIniciales" 
+                [src]="emp.foto_url" 
+                alt="Foto" 
+                class="emp-avatar"
+              />
+              <ng-template #avatarIniciales>
+                <div class="emp-avatar-placeholder">
+                  {{ emp.nombre.charAt(0) }}{{ emp.apellido_paterno.charAt(0) }}
+                </div>
+              </ng-template>
+            </div>
+          </td>
+
+          <td>{{ emp.nombre }} {{ emp.apellido_paterno }} {{ emp.apellido_materno }}</td>
+          <td>{{ emp.puesto }}</td>
+          <td>{{ emp.telefono || 'N/A' }}</td>
+          <td>{{ emp.correo || 'N/A' }}</td>
+          <td>{{ emp.horas_laborales }} hrs</td>
+          <td>
+            <span class="badge badge-success">
+              {{ emp.rol }}
+            </span>
+          </td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action edit" title="Editar">✏️</button>
-              <button class="btn-action delete" title="Dar de Baja">🗑️</button>
+              <button class="btn-action" (click)="abrirModalEditar(emp)" title="Editar">✏️</button>
+              <button class="btn-action" (click)="eliminarEmpleado(emp.id_empleado)" title="Eliminar">🗑️</button>
             </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="empleadosFiltrados.length === 0">
+          <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            No se encontraron registros de empleados.
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+</div>
 
-  <!-- VENTANA EMERGENTE (MODAL) -->
-  <div id="employee-modal" class="modal-overlay" [class.is-visible]="isModalOpen" (click)="cerrarModalDesdeAfuera($event)">
-    <div class="modal-container">
-      <div class="modal-header">
-        <h2>Registrar Nuevo Empleado</h2>
-        <button type="button" id="close-modal-x" class="modal-close-x" (click)="cerrarModal()">&times;</button>
-      </div>
-      
-      <form id="modal-form" class="modal-body" #empleadoForm="ngForm" (ngSubmit)="guardarEmpleado($event)">
-        
-        <!-- Nombre Completo -->
-        <div class="filter-group block-input">
-          <label for="modal-nombre">Nombre Completo *</label>
-          <input type="text" id="modal-nombre" name="nombre" [(ngModel)]="nuevoEmpleado.nombre" placeholder="Nombre y apellidos" required>
-        </div>
-
-        <!-- Puesto -->
-        <div class="filter-group block-input">
-          <label for="modal-puesto">Puesto Asignado *</label>
-          <select id="modal-puesto" name="puesto" [(ngModel)]="nuevoEmpleado.puesto" required>
-            <option value="" disabled selected>Seleccionar puesto</option>
-            <option value="Administración">Administración</option>
-            <option value="Operario">Operario</option>
-            <option value="Logística">Logística</option>
-            <option value="Seguridad e Higiene">Seguridad e Higiene</option>
-          </select>
-        </div>
-
-        <!-- Fila doble: Teléfono y Salario -->
-        <div class="form-row-grid inline-quantity-unit has-material-unit">
-          
-          <div class="filter-group block-input">
-            <label for="modal-telefono">Teléfono Movil *</label>
-            <input type="text" id="modal-telefono" name="telefono" [(ngModel)]="nuevoEmpleado.telefono" (keydown)="validarTecladoTelefono($event)" placeholder="10 dígitos" maxlength="10" required>
-          </div>
-
-          <div class="filter-group block-input">
-            <label for="modal-salario">Salario Mensual *</label>
-            <input type="number" id="modal-salario" name="salario" [(ngModel)]="nuevoEmpleado.salario" placeholder="$ 0.00" min="1" required>
-          </div>
-          
-        </div>
-
-        <!-- Correo Electrónico -->
-        <div class="filter-group block-input">
-          <label for="modal-correo">Correo Electrónico *</label>
-          <input type="email" id="modal-correo" name="correo" [(ngModel)]="nuevoEmpleado.correo" placeholder="ejemplo@correo.com" email required>
-        </div>
-
-        <!-- Acciones del Modal -->
-        <div class="modal-actions">
-          <button type="button" id="btn-cancel-modal" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-          <!-- Deshabilitado si el formulario no cumple las condiciones requeridas -->
-          <button type="submit" class="btn btn-primary" [disabled]="empleadoForm.invalid">Guardar Empleado</button>
-        </div>
-      </form>
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal-overlay" [class.is-visible]="mostrarModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>{{ modoEdicion ? 'Editar Empleado' : 'Registrar Nuevo Empleado' }}</h2>
+      <button class="modal-close-x" (click)="cerrarModal()">&times;</button>
     </div>
-  </div>
 
+    <form (ngSubmit)="guardarEmpleado()">
+      <div class="modal-body">
+
+        <!-- FILA SUPERIOR: FOTO A LA IZQUIERDA + NOMBRES A LA DERECHA -->
+        <div class="modal-top-grid">
+          
+          <!-- SECCIÓN DE FOTO COMPACTA / CÁMARA WEB EN VIVO -->
+          <div class="photo-section">
+            <label>Fotografía</label>
+
+            <!-- VISTA NORMAL (DROPZONE / PREVIEW) -->
+            <div 
+              *ngIf="!camaraActiva"
+              class="image-upload-box compact-box" 
+              (dragover)="onDragOver($event)" 
+              (drop)="onDropFoto($event)"
+              (click)="fileInput.click()"
+            >
+              <div *ngIf="!empleadoForm.foto_url" class="upload-placeholder">
+                <span class="upload-icon">📁</span>
+                <p>Arrastra o <strong>haz clic</strong></p>
+              </div>
+
+              <div *ngIf="empleadoForm.foto_url" class="preview-container">
+                <img [src]="empleadoForm.foto_url" alt="Vista previa" class="upload-preview" />
+                <button type="button" class="btn-remove-photo" (click)="quitarFoto($event)">✕ Quitar</button>
+              </div>
+            </div>
+
+            <!-- VISOR DE CÁMARA WEB EN TIEMPO REAL -->
+            <div *ngIf="camaraActiva" class="camera-stream-container">
+              <video #videoElement autoplay playsinline class="video-preview"></video>
+              <button type="button" class="btn btn-capture" (click)="tomarFotoCamara()">📸 Capturar</button>
+              <button type="button" class="btn btn-cancel-cam" (click)="detenerCamara()">Cancelar</button>
+            </div>
+
+            <!-- CANVAS OCULTO PARA PROCESAR LA CAPTURA DE FOTO -->
+            <canvas #canvasElement style="display: none;"></canvas>
+
+            <!-- INPUT OCULTO PARA ARCHIVOS -->
+            <input #fileInput type="file" accept="image/*" style="display: none" (change)="onFotoSeleccionada($event)">
+
+            <button *ngIf="!camaraActiva" type="button" class="btn-camera" (click)="iniciarCamara()">
+              📷 Activar Cámara
+            </button>
+          </div>
+
+          <!-- DATOS PERSONALES PRINCIPALES -->
+          <div class="names-section">
+            <div class="filter-group block-input">
+              <label>Nombre(s) *</label>
+              <input type="text" [(ngModel)]="empleadoForm.nombre" name="nombre" required placeholder="Ej. Carlos">
+              <span class="error-text" *ngIf="errores['nombre']">{{ errores['nombre'] }}</span>
+            </div>
+
+            <div class="inline-quantity-unit has-material-unit">
+              <div class="filter-group block-input">
+                <label>Apellido Paterno *</label>
+                <input type="text" [(ngModel)]="empleadoForm.apellido_paterno" name="apellido_paterno" required placeholder="Ej. Mendoza">
+                <span class="error-text" *ngIf="errores['apellido_paterno']">{{ errores['apellido_paterno'] }}</span>
+              </div>
+              <div class="filter-group block-input">
+                <label>Apellido Materno</label>
+                <input type="text" [(ngModel)]="empleadoForm.apellido_materno" name="apellido_materno" placeholder="Ej. Ruiz">
+                <span class="error-text" *ngIf="errores['apellido_materno']">{{ errores['apellido_materno'] }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RESTO DEL FORMULARIO CON VALIDACIONES -->
+        <div class="inline-quantity-unit has-material-unit">
+          <div class="filter-group block-input">
+            <label>Puesto *</label>
+            <select [(ngModel)]="empleadoForm.puesto" name="puesto" required>
+              <option value="" disabled selected>Seleccione...</option>
+              <option value="Administración">Administración</option>
+              <option value="Operario">Operario</option>
+              <option value="Logística">Logística</option>
+              <option value="Ventas">Ventas</option>
+            </select>
+            <span class="error-text" *ngIf="errores['puesto']">{{ errores['puesto'] }}</span>
+          </div>
+          <div class="filter-group block-input">
+            <label>Rol de Sistema *</label>
+            <select [(ngModel)]="empleadoForm.rol" name="rol" required>
+              <option value="admin">Administrador</option>
+              <option value="operador">Operador</option>
+              <option value="vendedor">Vendedor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="inline-quantity-unit has-material-unit">
+          <div class="filter-group block-input">
+            <label>Teléfono (10 dígitos)</label>
+            <input type="text" [(ngModel)]="empleadoForm.telefono" name="telefono" placeholder="2711234567" maxlength="16">
+            <span class="error-text" *ngIf="errores['telefono']">{{ errores['telefono'] }}</span>
+          </div>
+          <div class="filter-group block-input">
+            <label>Horas Laborales</label>
+            <input type="number" [(ngModel)]="empleadoForm.horas_laborales" name="horas_laborales">
+            <span class="error-text" *ngIf="errores['horas_laborales']">{{ errores['horas_laborales'] }}</span>
+          </div>
+        </div>
+
+        <div class="filter-group block-input">
+          <label>Correo Electrónico (Debe incluir @gmail.com)</label>
+          <input type="email" [(ngModel)]="empleadoForm.correo" name="correo" placeholder="ejemplo@gmail.com">
+          <span class="error-text" *ngIf="errores['correo']">{{ errores['correo'] }}</span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Registro</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
